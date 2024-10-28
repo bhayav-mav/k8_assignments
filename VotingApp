@@ -1,0 +1,52 @@
+root@ip-172-31-33-228:~# kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+db-58cc845644-tffw9       1/1     Running   0          45h
+redis-6878558678-q5tb2    1/1     Running   0          45h
+result-86bc6f7b5d-6tpj4   1/1     Running   0          45h
+vote-7d884dd585-rbh2q     1/1     Running   0          45h
+worker-6fc5d5b668-2579h   1/1     Running   0          45h
+root@ip-172-31-33-228:~# kubectl get svc
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+db           ClusterIP   10.104.16.153    <none>        5432/TCP         45h
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP          45h
+redis        ClusterIP   10.109.182.130   <none>        6379/TCP         45h
+result       NodePort    10.107.219.44    <none>        5001:31001/TCP   45h
+vote         NodePort    10.104.171.245   <none>        5000:31000/TCP   45h
+
+Observation after deleting Vote pod
+* New pod created 
+* No impact to vote application
+
+Observation after deleting Worker pod
+* Same observation as Vote pod
+
+Observation after deleting db pod
+* New pod created
+* All votes info deleted from vote application
+* New votes still accepted and application continued
+* When deleted db pod again, both result and worker node went into error status, since both pods are accessing database from db pod
+* Result pod started working when db pod was restarted
+
+
+
+root@ip-172-31-33-228:~# kubectl get po
+NAME                      READY   STATUS    RESTARTS       AGE
+db-58cc845644-q97fj       1/1     Running   0              33s
+redis-6878558678-q5tb2    1/1     Running   0              45h
+result-86bc6f7b5d-6tpj4   0/1     Error     1 (4m7s ago)   45h
+vote-7d884dd585-qpcr7     1/1     Running   0              7m54s
+worker-6fc5d5b668-d6292   0/1     Error     1 (4m6s ago)   5m49s
+root@ip-172-31-33-228:~# kubectl get po
+NAME                      READY   STATUS    RESTARTS        AGE
+db-58cc845644-q97fj       1/1     Running   0               42s
+redis-6878558678-q5tb2    1/1     Running   0               45h
+result-86bc6f7b5d-6tpj4   0/1     Error     1 (4m16s ago)   45h
+vote-7d884dd585-qpcr7     1/1     Running   0               8m3s
+worker-6fc5d5b668-d6292   0/1     Error     1 (4m15s ago)   5m58s
+
+
+
+
+
+
+
